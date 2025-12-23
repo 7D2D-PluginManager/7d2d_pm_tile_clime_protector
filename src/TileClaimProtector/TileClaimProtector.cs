@@ -1,0 +1,34 @@
+using PluginManager.Api;
+using PluginManager.Api.Capabilities.Implementations.Events.GameEvents;
+using PluginManager.Api.Capabilities.Implementations.Utils;
+using PluginManager.Api.Contracts;
+using PluginManager.Api.Hooks;
+
+namespace TileClaimProtector;
+
+public class TileClaimProtector : BasePlugin
+{
+    public override string ModuleName => "TileClaimProtector";
+    public override string ModuleVersion => "1.0.0";
+    public override string ModuleAuthor => "TouchMe-Inc";
+
+    public override string ModuleDescription =>
+        "Blocks unauthorized access to objects inside other players land claims";
+
+    protected override void OnLoad()
+    {
+        RegisterEventHandler<TileEntityAccessAttemptEvent>(OnTileEntityAccessAttempt, HookMode.Pre);
+    }
+
+    private HookResult OnTileEntityAccessAttempt(TileEntityAccessAttemptEvent evt)
+    {
+        var claimStatus = Capabilities.Get<IPlayerUtil>().GetClaimOwner(evt.EntityId, evt.TileEntityPosition);
+
+        if (claimStatus == LandClaimOwner.Other)
+        {
+            Capabilities.Get<IPlayerUtil>().PlaySound(evt.EntityId, "gate_chainlink_locked");
+        }
+
+        return HookResult.Continue;
+    }
+}
