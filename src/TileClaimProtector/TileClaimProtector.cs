@@ -23,13 +23,10 @@ public class TileClaimProtector : BasePlugin
     private HookResult OnTileEntityAccessAttempt(TileEntityAccessAttemptEvent evt)
     {
         var claimStatus = Capabilities.Get<IPlayerUtil>().GetClaimOwner(evt.EntityId, evt.TileEntityPosition);
+        if (claimStatus != LandClaimOwner.Other) return HookResult.Continue;
+        
+        Capabilities.Get<IPlayerUtil>().PlaySound(evt.EntityId, "ui_denied", 20);
+        return HookResult.Handled;
 
-        if (claimStatus == LandClaimOwner.Other)
-        {
-            Capabilities.Get<IPlayerUtil>().PlaySound(evt.EntityId, "ui_denied");
-            return HookResult.Handled;
-        }
-
-        return HookResult.Continue;
     }
 }
