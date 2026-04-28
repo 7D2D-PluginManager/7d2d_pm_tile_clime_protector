@@ -22,11 +22,16 @@ public class TileClaimProtector : BasePlugin
 
     private HookResult OnTileEntityAccessAttempt(TileEntityAccessAttemptEvent evt)
     {
+        if (evt.TileEntityType == TileEntityType.Loot &&
+            Capabilities.Get<IGameUtil>().GetEntityType(evt.TileEntityId).Equals("EntityBackpack"))
+        {
+            return HookResult.Continue;
+        }
+
         var claimStatus = Capabilities.Get<IPlayerUtil>().GetClaimOwner(evt.EntityId, evt.TileEntityPosition);
         if (claimStatus != LandClaimOwner.Other) return HookResult.Continue;
-        
+
         Capabilities.Get<IPlayerUtil>().PlaySound(evt.EntityId, "ui_denied", 20);
         return HookResult.Handled;
-
     }
 }
